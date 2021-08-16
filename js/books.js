@@ -3,6 +3,9 @@ const body = document.querySelector("body");
 const form = document.getElementById("form");
 const btn = document.getElementById("addbtn");
 const bookList = document.getElementById("container");
+const emptyForm = document.getElementById('error-empty')
+const errorRepeat = document.getElementById('error-repeat')
+
 btn.addEventListener("click", input);
 
 function input(e) {
@@ -10,10 +13,8 @@ function input(e) {
   const bookTitle = document.getElementById("title").value;
   const bookAuthor = document.getElementById("author").value; 
   status = true; 
-  const error = document.createElement("p");
-  const emptyForm = document.getElementById('error-empty')
-  const errorRepeat = document.getElementById('error-repeat')
-
+  // const error = document.createElement("p");
+  
 
   if (bookTitle === "" || bookAuthor === "") {
     emptyForm.style.display = 'block';
@@ -95,6 +96,7 @@ function displayBooks() {
 
 
 function removebtn(id) {
+  
   books = books.filter((book, index) => {
     return id !== index;
   })
