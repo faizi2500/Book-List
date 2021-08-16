@@ -1,64 +1,103 @@
 let books = [];
-const body =document.querySelector('body')
-const form = document.getElementById('form');
-const btn = document.getElementById('addbtn');
-
-btn.addEventListener('click', input);
+const body = document.querySelector("body");
+const form = document.getElementById("form");
+const btn = document.getElementById("addbtn");
+const bookList = document.getElementById("container");
+btn.addEventListener("click", input);
 
 function input(e) {
   e.preventDefault();
-  const bookTitle =document.getElementById('title').value;  // bookTitle as input from book name
-  const bookAuthor =document.getElementById('author').value; // bookAuthor as input from book Author
-  let status = true //this is to make sure that the book list is pushed only if it is true otherwise that line wont work.
-  const error = document.createElement('p');
+  const bookTitle = document.getElementById("title").value;
+  const bookAuthor = document.getElementById("author").value; 
+  status = true; 
+  const error = document.createElement("p");
+  const emptyForm = document.getElementById('error-empty')
+  const errorRepeat = document.getElementById('error-repeat')
 
-  // check if the values are empty 
-  if(bookTitle === "" || bookAuthor === "") {
-    error.innerHTML = `<strong>Required:</strong> Please insert Book Name and Author Name`;
+
+  if (bookTitle === "" || bookAuthor === "") {
+    emptyForm.style.display = 'block';
     body.appendChild(error);
     status = false;
-  }
-  else  {    // checking if there is a similar book with the name and title. 
-    for(let i = 0; i < books.length; i++) {
-        if(books[i].title == bookTitle && books[i].author == bookAuthor){
-          error.innerHTML = `<strong>Note: </strong> This book already exists in your Reading List.`
-          body.appendChild(error);
-          status = false;
-        }
+  } else {
+    for (let i = 0; i < books.length; i++) {
+      if (books[i].title == bookTitle && books[i].author == bookAuthor) {
+        errorRepeat.style.display = 'block'
+        body.appendChild(error);
+        status = false;
       }
-  } 
+    }
+  }
+  
   if (status) {
     const list = {
-      id: Date(),
+      id: books.length,
       title: `${bookTitle}`,
       author: `${bookAuthor}`,
     };
-    books.push(list);
-    updateStorage()
+    books.unshift(list);
+    console.log(books);
+    emptyForm.style.display = 'none';
+    errorRepeat.style.display = 'none';
+    updateStorage();
   }
-
-  console.log(books)
-  console.log(books.length)
+  form.reset();
 }
 
 // Update Local Storage
 function updateStorage() {
-  localStorage.setItem('books',JSON.stringify(books));
-}
-
-// Parse data that is inside the storage so it is in the form of object not string. 
-
-const parseStorage = JSON.parse(localStorage.getItem('books'));
-if(parseStorage !== null) {
+  localStorage.setItem("books", JSON.stringify(books));
   displayBooks();
 }
 
-let parent = document.createElement('ul')
-
-function displayBooks() {
-  for(let i = 0; i < books.length; i++){
-     let li = document.createElement('li');
-     li.innerHTML = `<h3 class=book-heading> ${books[i].title} </h3>`;
-     parent.appendChild(li);
+function getData() {
+  let parsedBooks = JSON.parse(localStorage.getItem("books"));
+  if(parsedBooks !== null) {
+    books = parsedBooks;
   }
 }
+
+function displayBooks() {
+  getData();
+  if (books != null) {
+
+    bookList.innerHTML = ""; // Purpose of setting this equal to empty is so whenever this functioned is called from the storage, it starts from scratch.
+    books.forEach((book, index) => {
+      const eachBook = document.createElement("div");
+
+      const bookName = document.createElement("h3");
+      bookName.innerHTML = `"${book.title}" by`;
+      eachBook.appendChild(bookName);
+
+      const bookWriter = document.createElement("h4");
+      bookWriter.innerHTML = `- ${book.author}`;
+      eachBook.appendChild(bookWriter);
+
+      const remove = document.createElement("button");
+      remove.innerHTML = "Remove";
+      remove.addEventListener("click", () => removebtn(index));
+      eachBook.appendChild(remove);
+
+      const separatingLine = document.createElement("hr");
+      separatingLine.className = "horizontal-line";
+      eachBook.appendChild(separatingLine);
+
+      bookList.appendChild(eachBook);
+    });
+  }
+}
+
+(function() {
+  displayBooks();
+})()
+
+// window.onload = displayBooks;
+
+
+function removebtn(id) {
+  books = books.filter((book, index) => {
+    return id !== index;
+  })
+  updateStorage();
+}
+
